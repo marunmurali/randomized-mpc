@@ -1,0 +1,35 @@
+services:
+  # Update this to the name of the service you want to work with in your docker-compose.yml file
+  rde:
+    container_name: randomized-mpc-rde
+    image: randomized-mpc-dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${HOME}/.ssh:/home/dev/.ssh:ro
+      - ..:/workspaces/randomized-mpc:cached
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.Xauthority:ro
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    privileged: true
+    network_mode: "host"
+    ipc: host
+    environment:
+      - RDE_IN_CONTAINER=true
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=/tmp/.Xauthority
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,display
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"

@@ -1,0 +1,14 @@
+#Ignore logs directory
+logs/
+log/
+
+#Ignore the git and cache folders
+.git
+.cache
+
+
+# pcl-maps are volume-mounted at runtime by deploy (ro); not needed in image
+operations/pcl-maps/
+
+# build/
+# install/

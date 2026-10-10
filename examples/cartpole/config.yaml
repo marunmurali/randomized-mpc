@@ -1,0 +1,35 @@
+# Cart-pole swing-up from hanging down, then balance.
+
+engine:
+  # 0.8 s at dt = 0.02. The upright pole is unstable (time constant
+  # ~0.2 s): over long horizons every open-loop sample falls over and the
+  # cost ranking turns into noise, so balance needs a short horizon.
+  n_horizon: 40
+  n_samples: 8192
+  n_basis: 10
+  dt: 0.02
+  u_min: -10.0        # cart force [N]
+  u_max: 10.0
+  du_max: 400.0       # force rate [N/s]
+  lag_tau: 0.0
+  warm_start: true
+  seed: 1
+  n_debug_samples: 0
+
+model:
+  m_cart: 1.0         # [kg]
+  m_pole: 0.1         # [kg]
+  half_length: 0.5    # pivot to pole centre of mass [m]
+  g: 9.81
+  track_limit: 2.0    # |x| beyond this is penalized [m]
+
+cost:
+  angle: 10.0
+  position: 2.0
+  velocity: 0.5
+  ang_velocity: 0.01
+  effort: 0.001
+  rate: 0.0001
+  track: 1000.0
+  terminal_angle: 50.0
+  terminal_ang_velocity: 1.0

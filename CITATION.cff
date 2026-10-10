@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software in your research, please cite the paper below
+  (preferred citation) and, where relevant, the related work listed under
+  references.
+title: "rmpc: randomized model predictive control for single-input problems on the GPU"
+type: software
+version: 0.1.0
+license: PolyForm-Noncommercial-1.0.0
+repository-code: "https://github.com/marunmurali/randomized-mpc"
+authors:
+  - family-names: Muraleedharan
+    given-names: Arun
+preferred-citation:
+  type: article
+  title: "Real-Time Implementation of Randomized Model Predictive Control for Autonomous Driving"
+  authors:
+    - family-names: Muraleedharan
+      given-names: Arun
+    - family-names: Okuda
+      given-names: Hiroyuki
+    - family-names: Suzuki
+      given-names: Tatsuya
+  journal: "IEEE Transactions on Intelligent Vehicles"
+  volume: 7
+  issue: 1
+  start: 11
+  year: 2022
+  doi: "10.1109/TIV.2021.3062730"
+references:
+  - type: conference-paper
+    title: "Randomized Model Predictive Control for Autonomous Racing"
+    authors:
+      - family-names: Muraleedharan
+        given-names: Arun
+      - family-names: Simões
+        given-names: Ivo
+      - family-names: Pau
+        given-names: Giovanni
+    collection-title: "2025 IEEE Intelligent Vehicles Symposium (IV)"
+    year: 2025

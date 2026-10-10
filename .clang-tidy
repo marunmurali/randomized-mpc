@@ -1,0 +1,15 @@
+---
+# Conservative check set: correctness/portability signal only, no stylistic
+# nags (magic numbers, identifier length, etc.) which don't fit a numerics/
+# CUDA codebase and would drown out real findings.
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  performance-*,
+  portability-*,
+  clang-analyzer-*
+WarningsAsErrors: ''
+HeaderFilterRegex: '(include/rmpc|examples)/.*'
+ExtraArgsBefore:
+  - -Wno-unknown-warning-option

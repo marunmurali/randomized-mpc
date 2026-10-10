@@ -1,0 +1,17 @@
+.vscode/
+**/*~
+
+build/
+install/
+CMakeUserPresets.json
+
+**/__pycache__/
+
+# simulation logs written by the examples
+logs/
+log/
+
+# never commit credentials
+.secret.*
+.jfrog-key
+db_pass.env

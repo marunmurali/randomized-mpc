@@ -1,0 +1,32 @@
+# Bounce a ball on a paddle to a target apex height.
+
+engine:
+  n_horizon: 120      # 1.2 s at dt = 0.01: always contains an impact
+  n_samples: 4096
+  n_basis: 8
+  dt: 0.01
+  u_min: -40.0        # paddle acceleration [m/s^2]
+  u_max: 40.0
+  du_max: 4000.0      # paddle jerk [m/s^3]
+  lag_tau: 0.0
+  warm_start: true
+  seed: 1
+  n_debug_samples: 0
+
+model:
+  g: 9.81
+  restitution: 0.8
+  stroke: 0.25        # paddle travel limit [m]
+
+cost:
+  apex: 100.0
+  paddle_pos: 20.0
+  paddle_vel: 1.0
+  effort: 0.0001      # small on purpose: larger values cost bounce accuracy
+  terminal_apex: 20.0
+
+scenario:
+  ball_start: 0.5     # dropped from rest [m]
+  apex_target: 1.0    # [m]
+  apex_target_2: 0.6  # switched to after half the run [m]
+  duration: 12.0      # [s]

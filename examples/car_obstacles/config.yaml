@@ -1,0 +1,64 @@
+# Car steering at constant speed through a slalom of obstacles.
+#
+# Same car, model and tracking cost as examples/car_steering; each
+# obstacle adds a flat collision penalty (no gradient) and can be passed
+# on either side.
+
+engine:
+  n_horizon: 100      # 2 s at dt = 0.02
+  n_samples: 5000
+  n_basis: 7
+  dt: 0.02
+  u_min: -0.3         # steer angle [rad]
+  u_max: 0.3
+  du_max: 0.7         # steer rate [rad/s]
+  lag_tau: 0.01       # steering actuator time constant [s]
+  warm_start: true
+  seed: 70997
+  n_debug_samples: 0
+
+vehicle:
+  vx: 20.0            # constant speed [m/s]
+  mass: 730.0
+  lf: 1.8             # CoG to front axle [m]
+  lr: 1.315           # CoG to rear axle [m]
+  Iz: 750.0           # yaw inertia [kg m^2]
+  g: 9.81
+  rho: 1.13           # air density
+  cl_f: 1.360         # lift coefficient x area, front
+  cl_r: 2.012         # lift coefficient x area, rear
+  car_width: 1.921
+  tire_f: {B: -14.0, C: 1.5, D: 1.5, E: -0.1}
+  tire_r: {B: -16.0, C: 1.6, D: 1.55, E: -0.2}
+
+cost:
+  lateral: {quad_gain: 400, quad_clamp: 600, lin_gain: 50}
+  heading: {quad_gain: 3500, quad_clamp: 250, lin_gain: 500}
+  terminal_lateral: {quad_gain: 400, quad_clamp: 600, lin_gain: 50}
+  terminal_heading: {quad_gain: 3500, quad_clamp: 250, lin_gain: 500}
+  progress: 1.0
+  actuation: 0.0
+  rate: 20.0
+  decay: 0.3
+  force_f: {f_exp: 50.0, q_force: 5.0}
+  force_r: {f_exp: 70.0, q_force: 200.0}
+  grip_limit_scaler: 1.0
+  bound: 1200
+  bound_margin: 0.1
+  max_bound_cost: 500
+  slip: 10000
+  slip_threshold_f: 0.11
+  slip_threshold_r: 0.07
+  max_slip_cost: 20000
+
+collision:
+  car_radius: 1.0     # footprint: one disc per axle [m]
+  clearance: 0.2      # extra margin around obstacles [m]
+  hit_cost: 20000     # per predicted step in contact
+
+# Frenet positions along the track (d > 0 is left of the centreline)
+obstacles:
+  - {s: 70.0, d: 0.0, radius: 1.0}
+  - {s: 125.0, d: 1.6, radius: 1.0}
+  - {s: 180.0, d: -1.6, radius: 1.0}
+  - {s: 235.0, d: 0.3, radius: 1.2}
