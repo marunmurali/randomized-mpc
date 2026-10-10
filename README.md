@@ -1,14 +1,21 @@
 # rmpc: randomized MPC on the GPU
 
 `rmpc` is a small, header-only CUDA library for **randomized model predictive
-control** of single-input systems. Each control step it draws thousands of
-smooth, constraint-satisfying input sequences, simulates all of them in
-parallel on the GPU through your model, and applies the cheapest one. It
-needs no gradients, so the model and cost can be nonlinear, non-smooth, or
-nonconvex.
+control** of any single-input system. Each control step it draws thousands
+of input sequences that respect your input bounds and rate limit, simulates
+all of them in parallel on the GPU through your model, and applies the
+cheapest one.
 
-You describe a problem with one struct: the state, the model step, and the
-cost. The engine handles everything else.
+**Your model and cost do not have to be continuous or differentiable.**
+The controller only ever *evaluates* them, so impacts, switches,
+saturations, lookup tables, `if`/`else` logic and on/off penalties are all
+fine. This is what sets it apart from gradient-based MPC.
+
+The method was developed for autonomous driving and is now a general tool:
+you describe your problem with one struct (state, model step, cost) and the
+engine does the rest. **You are warmly encouraged to use it for your own
+systems.** The four examples below range from a racing car to a juggling
+paddle, and none of them needed a change to the engine.
 
 | Car steering at constant speed | Cart-pole swing-up |
 |---|---|
@@ -20,6 +27,60 @@ In every animation, blue is the plan the controller chose, orange is what
 the plant did, and the grey lines are some of the random samples it
 rejected. Every frame comes from the same `step` function the controller
 rolls out on the GPU.
+
+## Why no continuity is needed
+
+Gradient-based MPC (for example a nonlinear program solved with SQP or an
+interior-point method) improves a plan by following derivatives of the
+model and cost. That quietly requires both to be smooth: a jump, a flat
+region or a branch either breaks the solver or gives it nothing to follow,
+and with several separate good solutions it stays with whichever one its
+initial guess was nearest.
+
+`rmpc` never takes a derivative. It proposes many complete plans, simulates
+them, and compares their costs. All it needs from your problem is that
+`step` and the cost can be **computed**. That allows, for example:
+
+- **discontinuous dynamics:** impacts and bounces, contact and friction
+  switching, mode changes, dead zones, backlash, saturations, gear changes;
+- **non-smooth or flat costs:** "collision or not", counts, thresholds,
+  `min`/`max`, penalties that only change at events;
+- **nonconvex problems with several good answers:** pass an obstacle on the
+  left or the right, swing a pendulum up in either direction;
+- **any code you can run on the GPU:** branches, loops, table look-ups,
+  your own integrator.
+
+Two examples are built around exactly this: the car slalom (a flat "hit or
+not" collision cost, and two ways around every obstacle) and paddle
+juggling (a jump in velocity at every bounce, and a cost that only changes
+at a bounce). See [Where sampling beats gradients](#where-sampling-beats-gradients).
+
+The *input* sequences, on the other hand, are smooth on purpose: they are
+built from a few cosine modes so that the commands are kind to real
+actuators and always respect the bounds and rate limit. Smoothness is a
+property of the commands the controller sends, not a requirement on your
+model.
+
+## Is it a good fit for your problem?
+
+**Good fit:**
+
+- one control input (a steer angle, a force, a torque, a valve, a
+  voltage, an acceleration);
+- dynamics fast enough to need a decision every few to tens of
+  milliseconds;
+- a model or cost that is non-smooth, hybrid or nonconvex, or simply
+  awkward to differentiate;
+- hard limits on the input and its rate.
+
+**Less suited:**
+
+- several inputs at once (the engine is single-input today);
+- very long horizons on unstable systems: random open-loop plans all
+  diverge, so keep the horizon short (the cart-pole uses 0.8 s);
+- problems that are smooth and convex, where a gradient-based solver will
+  usually find a more precise optimum;
+- hard *state* constraints: express them as costs (the examples show how).
 
 ## How it works
 
@@ -77,6 +138,18 @@ also drives your simulation, tests, and plots.
 **[docs/writing_a_problem.md](docs/writing_a_problem.md)** covers the full
 interface, timing convention, sampling, tuning tips, and how to turn a
 problem into a new example with its own animation.
+
+### Use it for your own system
+
+1. Copy an example folder (the cart-pole is the smallest complete one).
+2. Write your `State`, `step` and costs in `problem.cuh`.
+3. Set the input bounds, rate limit, horizon and weights in `config.yaml`.
+4. Run the closed loop and watch it with `animate.py`.
+
+If you apply it to a new kind of system, please share it: a pull request
+with a new example under `examples/`, or an issue describing what worked
+and what did not, helps the next person. And if it ends up in your
+research, please [cite it](#citing).
 
 ## Examples
 
@@ -155,13 +228,14 @@ Control for Autonomous Racing," *2025 IEEE Intelligent Vehicles Symposium
 
 ### Background
 
-The method comes from the author's PhD work (the 2021 paper above). Later
-work extended it with longitudinal control and gear shifting, a combined-
-slip tire model, and a neural-network speed correction (the 2025 paper, and
-"Learning-Augmented Nonlinear MPC for Autonomous Racing", ITSC 2026). This
-repository is a generic, simplified version: one input, a clean
-problem interface, and four worked examples; none of those extensions are
-included.
+The method comes from the author's PhD work on autonomous driving (the 2021
+paper above). Later work extended it with longitudinal control and gear
+shifting, a combined-slip tire model, and a neural-network speed correction
+(the 2025 paper, and "Learning-Augmented Nonlinear MPC for Autonomous
+Racing", ITSC 2026). This repository takes the core method out of the
+vehicle setting and makes it a general controller for any single-input
+problem: a clean problem interface and four worked examples. None of the
+vehicle-specific extensions are included.
 
 ## License
 
