@@ -13,10 +13,11 @@ namespace cartpole {
  */
 inline rmpc::Result<CartPole::Params> loadParams(
     const YAML::Node& root) noexcept {
+  using examples::child;
   using examples::read;
   CartPole::Params p{};
-  const YAML::Node m = root["model"];
-  const YAML::Node c = root["cost"];
+  const YAML::Node m = child(root, "model");
+  const YAML::Node c = child(root, "cost");
 
   const bool ok =
       m && c && read(m, "m_cart", p.m_cart) && read(m, "m_pole", p.m_pole) &&

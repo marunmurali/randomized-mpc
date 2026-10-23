@@ -31,11 +31,25 @@ bool read(const YAML::Node& node, const char* key, T& out) noexcept {
 }
 
 /**
+ * @brief Look up node[key] without throwing.
+ *
+ * @return the child node, or a null node if node is not a map or the
+ * lookup throws
+ */
+inline YAML::Node child(const YAML::Node& node, const char* key) noexcept {
+  try {
+    return node[key];
+  } catch (const std::exception&) {
+    return YAML::Node{};
+  }
+}
+
+/**
  * @brief Load the `engine:` section shared by every example.
  */
 inline rmpc::Result<rmpc::Config> loadEngineConfig(
     const YAML::Node& root) noexcept {
-  const YAML::Node e = root["engine"];
+  const YAML::Node e = child(root, "engine");
   rmpc::Config c;
   if (!e || !read(e, "n_horizon", c.n_horizon) ||
       !read(e, "n_samples", c.n_samples) || !read(e, "n_basis", c.n_basis) ||
