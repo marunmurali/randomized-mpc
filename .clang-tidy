@@ -9,6 +9,12 @@ Checks: >
   performance-*,
   portability-*,
   clang-analyzer-*
+CheckOptions:
+  # int -> float (e.g. `cost / n`, `step * dt`) is everywhere in the
+  # numerics and exact for the small counts involved; keep the check for
+  # integer narrowing, where a silent wrap is a real bug.
+  - key: bugprone-narrowing-conversions.WarnOnIntegerToFloatingPointNarrowingConversion
+    value: false
 WarningsAsErrors: ''
 HeaderFilterRegex: '(include/rmpc|examples)/.*'
 ExtraArgsBefore:
