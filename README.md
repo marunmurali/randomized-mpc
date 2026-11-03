@@ -208,6 +208,14 @@ python3 examples/paddle_juggling/animate.py
 to replay existing logs from `logs/`), then shows a window or, with
 `--save`, writes a GIF or MP4.
 
+The unit tests also run on a simulated A100 in CI (`GPU tests (simulated)`,
+an optional check). It starts on every pull request and on pushes to `main`;
+to run it by hand, open **Actions > GPU tests (simulated) > Run workflow**
+(or `gh workflow run "GPU tests (simulated)"`). The first run for a branch
+spends about 16 minutes building the simulator, and the whole job takes about
+25. It is a simulator, so it checks correctness but not timing, and it does
+not replace a run on a real GPU.
+
 To use the engine in your own CMake project, link the header-only
 `rmpc::rmpc` target and compile your problem code as CUDA (`.cu`).
 

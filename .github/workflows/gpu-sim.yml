@@ -3,14 +3,21 @@ name: GPU tests (simulated)
 # Optional, non-required check. The runners have no GPU, so this runs the unit
 # tests on a simulated NVIDIA A100 (https://github.com/pantheongpu/pantheonsim).
 # A simulator cannot reproduce hardware-specific behaviour or timing, so it
-# complements real-GPU testing and does not replace it.
+# complements real-GPU testing and does not replace it. It also runs on pushes
+# to main so the simulator's build cache is kept at main's level for new PRs.
 
 on:
   workflow_dispatch:
   pull_request:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   gpu-tests:
@@ -43,10 +50,3 @@ jobs:
 
       - name: Test
         run: vgpu run ctest --test-dir build --output-on-failure
-
-      - name: Free disk space
-        if: always()
-        run: |
-          df -h /
-          rm -rf build
-          df -h /
