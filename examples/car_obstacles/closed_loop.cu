@@ -85,7 +85,9 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  for (float s = 0.0f; s <= track.length(); s += 0.5f) {
+  const int n_track = static_cast<int>(track.length() / 0.5f);
+  for (int i = 0; i <= n_track; ++i) {
+    const float s = 0.5f * static_cast<float>(i);
     const auto cl = track.pose(s);
     const auto l = track.toCartesian(s, BOUND, 0.0f);
     const auto r = track.toCartesian(s, -BOUND, 0.0f);

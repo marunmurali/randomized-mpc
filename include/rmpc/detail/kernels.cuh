@@ -29,7 +29,7 @@ RMPC_HD float basisValue(int k, int i, int n_horizon) {
 
 /** basis[k * n_basis + i] for k < n_horizon, i < n_basis */
 static __global__ void buildBasis(float* basis, int n_horizon, int n_basis) {
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int idx = static_cast<int>(blockIdx.x * blockDim.x + threadIdx.x);
   if (idx >= n_horizon * n_basis) {
     return;
   }
@@ -54,7 +54,7 @@ static __global__ void buildInputs(const float* basis, const float* randoms,
                             const float* warm, float* u_cmd, int n_horizon,
                             int n_basis, int n_samples, float u0, float u_min,
                             float u_max, float du_step, bool warm_start) {
-  const int j = blockIdx.x * blockDim.x + threadIdx.x;
+  const int j = static_cast<int>(blockIdx.x * blockDim.x + threadIdx.x);
   if (j >= n_samples) {
     return;
   }
@@ -93,7 +93,7 @@ __global__ void rollout(typename P::State x0, float u0, const float* u_cmd,
                         const typename P::Reference* ref,
                         typename P::Params params, int n_horizon, int n_active,
                         int stride, float dt, float lag_a) {
-  const int j = blockIdx.x * blockDim.x + threadIdx.x;
+  const int j = static_cast<int>(blockIdx.x * blockDim.x + threadIdx.x);
   if (j >= n_active) {
     return;
   }

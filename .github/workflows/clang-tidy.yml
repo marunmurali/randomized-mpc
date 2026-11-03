@@ -1,0 +1,47 @@
+name: clang-tidy
+
+# Static analysis of the CUDA sources with clang's CUDA front end. Runs the
+# checks in .clang-tidy on every .cu file (and the headers they include);
+# any warning fails the job. No GPU needed: this only parses the code.
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-24.04
+    # Same base image and packages as .devcontainer, so results match local
+    # runs.
+    container: nvidia/cuda:12.6.3-devel-ubuntu24.04
+    steps:
+      - name: Install tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            cmake make g++ python3 clang-tidy libgtest-dev libyaml-cpp-dev
+
+      - uses: actions/checkout@v4
+
+      # Configure only (no build): produces compile_commands.json. The
+      # runner has no GPU, so pin an architecture instead of "native".
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_CUDA_ARCHITECTURES=80
+
+      - name: Translate compile database for clang
+        run: python3 tools/clang_compile_db.py build/compile_commands.json build/tidy
+
+      - name: Run clang-tidy
+        run: |
+          run-clang-tidy -p build/tidy -quiet -warnings-as-errors='*' \
+            '/(examples|tests)/.*\.cu$'

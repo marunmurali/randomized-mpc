@@ -13,10 +13,11 @@ namespace paddle_juggling {
  */
 inline rmpc::Result<PaddleJuggling::Params> loadParams(
     const YAML::Node& root) noexcept {
+  using examples::child;
   using examples::read;
   PaddleJuggling::Params p{};
-  const YAML::Node m = root["model"];
-  const YAML::Node c = root["cost"];
+  const YAML::Node m = child(root, "model");
+  const YAML::Node c = child(root, "cost");
 
   const bool ok = m && c && read(m, "g", p.g) &&
                   read(m, "restitution", p.restitution) &&

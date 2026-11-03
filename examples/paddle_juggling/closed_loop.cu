@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
   auto cfg = examples::loadEngineConfig(root);
   auto params = paddle_juggling::loadParams(root);
   Scenario sc{};
-  const YAML::Node s = root["scenario"];
+  const YAML::Node s = examples::child(root, "scenario");
   if (cfg.isError() || params.isError() || !s ||
       !examples::read(s, "ball_start", sc.ball_start) ||
       !examples::read(s, "apex_target", sc.apex_target) ||

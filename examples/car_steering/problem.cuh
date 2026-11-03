@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include <array>
+#include <cstdint>
 
 #include "rmpc/problem.h"
 
@@ -105,7 +106,7 @@ struct CarSteering {
     float fzr;
   };
 
-  enum Term {
+  enum Term : std::uint8_t {
     LATERAL = 0,
     HEADING,
     ACTUATION,

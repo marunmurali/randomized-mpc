@@ -29,6 +29,17 @@ Code is written according to the [Google C++ Style Guide](https://www.google.com
 
 In the development environment the style is enforced by means of VS Code extensions and static analysis (`.clang-tidy`). Host code of the CUDA sources in this repository builds with `-Wall -Wextra -Wshadow -Werror`.
 
+### Static analysis
+Every pull request runs clang-tidy (`.github/workflows/clang-tidy.yml`) on all `.cu` files and the headers they include; any warning fails the check. clang parses CUDA itself but not nvcc's flags, so `tools/clang_compile_db.py` rewrites CMake's compile database first. To run the same check locally:
+
+```sh
+cmake -S . -B build
+python3 tools/clang_compile_db.py build/compile_commands.json build/tidy
+run-clang-tidy -p build/tidy -quiet -warnings-as-errors='*' '/(examples|tests)/.*\.cu$'
+```
+
+Silence a finding only when it cannot be fixed: prefer a check option in `.clang-tidy` with a comment saying why, over a `// NOLINT`.
+
 
 ## Namespaces and file hierarchy
 The engine lives in the single namespace `rmpc`, with implementation details in `rmpc::detail`. Each example problem gets its own namespace named after its directory, e.g. `cartpole` for `examples/cartpole/`.

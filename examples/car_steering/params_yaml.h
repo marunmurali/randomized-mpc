@@ -29,10 +29,11 @@ inline bool readForce(const YAML::Node& n, ForceCost& c) noexcept {
  */
 inline rmpc::Result<CarSteering::Params> loadParams(
     const YAML::Node& root) noexcept {
+  using examples::child;
   using examples::read;
   CarSteering::Params p{};
-  const YAML::Node v = root["vehicle"];
-  const YAML::Node c = root["cost"];
+  const YAML::Node v = child(root, "vehicle");
+  const YAML::Node c = child(root, "cost");
 
   const bool ok =
       v && c && read(v, "vx", p.vx) && read(v, "mass", p.mass) &&
